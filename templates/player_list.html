@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Management - Player List</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://cdn.britannica.com/51/190751-131-B431C216/soccer-ball-goal.jpg');
+            background-color: rgba(244, 244, 244, 0.7); /* Semi-transparent white background */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white; /* Set title text color to white */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff; /* Set background color of table */
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+
+        .logout-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+        }
+
+        #confirmationModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Soccer Management - Player List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Position</th>
+                <th>Number</th>
+                <th>Email (Username)</th>
+                <th>Actions</th> <!-- Added Actions column -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+            <tr>
+                <td>{{ player[1] }}</td>
+                <td>{{ player[2] }}</td>
+                <td>{{ player[5] }}</td>
+                <td>{{ player[6] }}</td>
+                <td>{{ player[3] }}</td>
+                <td class="actions">
+                    <!-- Add the "Delete" button with appropriate onclick function -->
+                    <button onclick="showConfirmation('{{ player[3] }}')">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="confirmationModal" style="display: none;">
+        <p>Are you sure you want to delete this player?</p>
+        <input type="hidden" id="emailToDelete">
+        <button onclick="deletePlayer()">Yes</button>
+        <button onclick="hideConfirmation()">No</button>
+    </div>
+
+    <div class="logout-btn">
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- JavaScript functions -->
+    <script>
+        function showConfirmation(email) {
+            // Show the confirmation modal
+            var modal = document.getElementById("confirmationModal");
+            modal.style.display = "block";
+
+            // Set the email of the player to be deleted in a hidden input field
+            var emailInput = document.getElementById("emailToDelete");
+            emailInput.value = email;
+        }
+
+        function hideConfirmation() {
+            // Hide the confirmation modal
+            var modal = document.getElementById("confirmationModal");
+            modal.style.display = "none";
+        }
+
+        function deletePlayer() {
+            // Get the email of the player to be deleted from the hidden input field
+            var emailInput = document.getElementById("emailToDelete");
+            var email = emailInput.value;
+
+            // Send an AJAX POST request to the delete route
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/delete_player/" + email, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Player deleted successfully, reload the page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        // Error occurred while deleting player
+                        alert("Error: " + xhr.responseText);
+                    }
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</body>
+</html>
